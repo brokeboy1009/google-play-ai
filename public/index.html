@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#10131a">
   <title>Google-Play-AI</title>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -17,13 +18,46 @@
       display: flex;
       flex-direction: column;
     }
+
     header {
       padding: 18px;
       border-bottom: 1px solid #2a303b;
       font-size: 21px;
       font-weight: bold;
     }
+
     header span { color: #8b9cff; }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #2a303b;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      background: #7185ff;
+      color: white;
+      padding: 12px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled { opacity: 0.5; cursor: wait; }
+
+    .tab {
+      background: #1c222d;
+      border: 1px solid #394253;
+    }
+
+    .tab.active {
+      background: #7185ff;
+      border-color: #7185ff;
+    }
+
     #chat {
       flex: 1;
       width: 100%;
@@ -31,12 +65,15 @@
       margin: 0 auto;
       padding: 20px 16px;
     }
+
     .welcome {
       text-align: center;
-      margin: 70px 0 30px;
+      margin: 50px 0 30px;
     }
+
     .welcome h1 { font-size: 30px; }
     .welcome p { color: #aab2c0; }
+
     .message {
       padding: 14px 16px;
       margin: 12px 0;
@@ -45,8 +82,10 @@
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
+
     .user { background: #28334b; }
     .assistant { background: #1c222d; }
+
     #form {
       position: sticky;
       bottom: 0;
@@ -54,18 +93,20 @@
       background: #10131a;
       border-top: 1px solid #2a303b;
     }
+
     .input-row {
       display: flex;
       gap: 10px;
       max-width: 800px;
       margin: auto;
     }
+
     textarea {
       flex: 1;
-      resize: none;
+      resize: vertical;
       min-width: 0;
-      height: 52px;
-      max-height: 140px;
+      min-height: 52px;
+      max-height: 180px;
       padding: 15px;
       border-radius: 14px;
       border: 1px solid #394253;
@@ -73,27 +114,90 @@
       color: white;
       font: inherit;
     }
-    button {
-      border: 0;
-      border-radius: 12px;
-      background: #7185ff;
-      color: white;
-      padding: 0 20px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:disabled { opacity: 0.5; }
+
     .note {
       text-align: center;
       color: #929baa;
       font-size: 12px;
       margin: 10px 0 0;
     }
+
+    #picture-section {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      flex: 1;
+    }
+
+    #picture-section h1 {
+      font-size: 28px;
+      margin-top: 8px;
+    }
+
+    #picture-section p { color: #aab2c0; }
+
+    #image-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    #image-prompt {
+      width: 100%;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    #generate-image {
+      min-height: 48px;
+    }
+
+    #image-status {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      color: #c7d0e0;
+      line-height: 1.5;
+    }
+
+    #image-result {
+      display: none;
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      border: 1px solid #394253;
+      margin-top: 12px;
+    }
+
+    #download-image {
+      display: none;
+      margin-top: 12px;
+      text-decoration: none;
+      text-align: center;
+      background: #28334b;
+      color: white;
+      padding: 13px;
+      border-radius: 12px;
+    }
+
+    [hidden] { display: none !important; }
   </style>
 </head>
+
 <body>
   <header>Google-Play-<span>AI</span></header>
 
+  <nav class="tabs" aria-label="AI tools">
+    <button class="tab active" id="chat-tab" type="button">
+      AI Chat
+    </button>
+    <button class="tab" id="picture-tab" type="button">
+      Create Picture
+    </button>
+  </nav>
+
+  <!-- Chat section -->
   <main id="chat" aria-live="polite">
     <div class="welcome" id="welcome">
       <h1>How can I help you?</h1>
@@ -103,40 +207,102 @@
 
   <form id="form">
     <div class="input-row">
-      <textarea id="prompt" placeholder="Message Google-Play-AI..."
-        aria-label="Your message" required></textarea>
+      <textarea
+        id="prompt"
+        placeholder="Message Google-Play-AI..."
+        aria-label="Your message"
+        required
+      ></textarea>
       <button id="send" type="submit">Send</button>
     </div>
     <p class="note">AI can make mistakes. Check important information.</p>
   </form>
 
+  <!-- Picture generator section -->
+  <section id="picture-section" hidden>
+    <h1>Create a Picture</h1>
+    <p>Describe the picture you want the AI to create.</p>
+
+    <form id="image-form">
+      <textarea
+        id="image-prompt"
+        placeholder="Example: A cute orange cat sitting on the moon, colorful digital art"
+        maxlength="800"
+        aria-label="Picture description"
+        required
+      ></textarea>
+
+      <button id="generate-image" type="submit">
+        Generate Picture
+      </button>
+    </form>
+
+    <p id="image-status" role="status"></p>
+
+    <img id="image-result" alt="Your AI-generated picture">
+
+    <a id="download-image" download="google-play-ai-picture.png">
+      Download Picture
+    </a>
+
+    <p class="note">
+      Picture generation depends on Hugging Face model availability
+      and your available free credits.
+    </p>
+  </section>
+
   <script>
+    // Switch between chat and picture generator
+    const chatTab = document.getElementById("chat-tab");
+    const pictureTab = document.getElementById("picture-tab");
     const chat = document.getElementById("chat");
-    const form = document.getElementById("form");
+    const chatForm = document.getElementById("form");
+    const pictureSection = document.getElementById("picture-section");
+
+    function showTab(tab) {
+      const showChat = tab === "chat";
+
+      chat.hidden = !showChat;
+      chatForm.hidden = !showChat;
+      pictureSection.hidden = showChat;
+
+      chatTab.classList.toggle("active", showChat);
+      pictureTab.classList.toggle("active", !showChat);
+    }
+
+    chatTab.addEventListener("click", () => showTab("chat"));
+    pictureTab.addEventListener("click", () => showTab("picture"));
+
+    // Existing chat functionality
     const promptBox = document.getElementById("prompt");
     const sendButton = document.getElementById("send");
     const history = [];
 
     function addMessage(role, content) {
       document.getElementById("welcome")?.remove();
+
       const bubble = document.createElement("div");
       bubble.className = "message " + role;
       bubble.textContent =
         (role === "user" ? "You: " : "Google-Play-AI: ") + content;
+
       chat.appendChild(bubble);
       bubble.scrollIntoView({ behavior: "smooth", block: "end" });
       return bubble;
     }
 
-    form.addEventListener("submit", async (event) => {
+    chatForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+
       const message = promptBox.value.trim();
       if (!message || sendButton.disabled) return;
 
       history.push({ role: "user", content: message });
       addMessage("user", message);
+
       promptBox.value = "";
       sendButton.disabled = true;
+
       const loading = addMessage("assistant", "Thinking...");
 
       try {
@@ -147,11 +313,13 @@
         });
 
         const data = await response.json();
+
         if (!response.ok) {
-          throw new Error(data.error || "Request failed.");
+          throw new Error(data.error || "Chat request failed.");
         }
+
         if (typeof data.reply !== "string") {
-          throw new Error("The server returned an unexpected response.");
+          throw new Error("Unexpected response from the server.");
         }
 
         loading.textContent = "Google-Play-AI: " + data.reply;
@@ -168,10 +336,62 @@
     promptBox.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        form.requestSubmit();
+        chatForm.requestSubmit();
+      }
+    });
+
+    // Actual image generation request
+    const imageForm = document.getElementById("image-form");
+    const imagePrompt = document.getElementById("image-prompt");
+    const generateButton = document.getElementById("generate-image");
+    const imageStatus = document.getElementById("image-status");
+    const imageResult = document.getElementById("image-result");
+    const downloadImage = document.getElementById("download-image");
+
+    imageForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const prompt = imagePrompt.value.trim();
+      if (!prompt || generateButton.disabled) return;
+
+      generateButton.disabled = true;
+      generateButton.textContent = "Generating...";
+      imageStatus.textContent = "Creating your picture. This may take a while...";
+      imageResult.style.display = "none";
+      downloadImage.style.display = "none";
+
+      try {
+        const response = await fetch("/api/image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Picture generation failed.");
+        }
+
+        if (typeof data.image !== "string" ||
+            !data.image.startsWith("data:image/")) {
+          throw new Error("The server did not return a valid image.");
+        }
+
+        imageResult.src = data.image;
+        imageResult.style.display = "block";
+
+        downloadImage.href = data.image;
+        downloadImage.style.display = "block";
+
+        imageStatus.textContent = "Your picture is ready!";
+      } catch (error) {
+        imageStatus.textContent = error.message;
+      } finally {
+        generateButton.disabled = false;
+        generateButton.textContent = "Generate Picture";
       }
     });
   </script>
 </body>
   </html>
-                                       
