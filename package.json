@@ -1,13 +1,13 @@
-
 {
   "name": "google-play-ai",
-  "version": "1.0.0",
-  "description": "AI chat website powered by Groq",
+  "version": "1.1.0",
+  "description": "AI chat and picture generator",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.7.1",
     "express": "^4.21.2",
     "groq-sdk": "^0.15.0"
   }
