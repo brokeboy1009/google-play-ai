@@ -1,0 +1,14 @@
+
+{
+  "name": "google-play-ai",
+  "version": "1.0.0",
+  "description": "AI chat website powered by Groq",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "groq-sdk": "^0.15.0"
+  }
+}
